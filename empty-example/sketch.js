@@ -1,7 +1,5 @@
 let canvWidth = 1500
 let canvHeight = 900
-
-
 let start;
 let current;
 let end;
@@ -20,9 +18,15 @@ function setup() {
   let trucks = new Group();
   let tiles = new Group();
 
+  let cityBlocks = 3
+  // number of desired city blocks in a row
+  
+  let cells = (cityBlocks * 8) + ((cityBlocks-1) * 4)
+  // gives me number of cells or segments
 
   let col = 0
   let row = 0
+
 
   let cellWidth = canvWidth/8
   let cellHeight = canvHeight/7
@@ -33,25 +37,48 @@ function setup() {
   let blockWidth = cellWidth * 2
   let blockHeight = cellHeight
 
-  // let numBlocks = 3
-  // let numCols = (numBlocks*3) - (numBlocks/2)
-  // let numCols = canvWidth/(numBlocks+numBlocks-1)
+  let carStartOptions = []
 
 
   for(let xCoord = blockWidth/2; xCoord <= canvWidth - blockWidth/2; xCoord += horDistBtwBlocks){
     col++
-    for(let yCoord = blockHeight/2; yCoord <= canvHeight - blockHeight/2; yCoord += vertDistBtwBlocks){
+    for(let yCoord = blockHeight/2; yCoord <= (canvHeight - blockHeight/2)+1; yCoord += vertDistBtwBlocks){
       row++
 
-      let tile = createSprite(x, y, cellWidth*2, cellHeight)
-
+      let tile = createSprite(xCoord, yCoord, blockWidth, blockHeight)
       tile.shapeColor = color(217,218,227)
       tile.onMousePressed = ()=>{squareClicked(tile)}
       tile.addToGroup(tiles)
       tile.row = row;
       tile.col = col;
+
+      let startVertLineX = xCoord + horDistBtwBlocks/2
+      let startVertLineY = 0
+
+      let endVertLineX = xCoord + horDistBtwBlocks/2
+      let endVertLineY = canvHeight
+
+      let inc =
+
+      carStartOptions.push({x: })
+
+      line(startVertLineX, startVertLineY, endVertLineX, endVertLineY)
+      stroke(255)
+
+      let startHorLineX = 0
+      let startHorLineY = yCoord + vertDistBtwBlocks/2
+
+      let endHorLineX = canvWidth
+      let endHorLineY = yCoord + vertDistBtwBlocks/2
+
+      line(startHorLineX, startHorLineY, endHorLineX, endHorLineY)
+      stroke(255)
+
+
+
     }
   }
+  // let car = createSprite(startVertLineX+50, startVertLineY+50,50,50)
 
   //
   // var gridSize = 135;
