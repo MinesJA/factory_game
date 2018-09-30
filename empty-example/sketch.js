@@ -1,10 +1,15 @@
 let canvWidth = 1500
 let canvHeight = 900
+
 let start;
 let current;
 let end;
 let openList = [];
 let closedList = [];
+
+let buildings;
+let cars;
+let blocks;
 
 let steps = 0;
 
@@ -14,53 +19,62 @@ function setup() {
   background(32,29,29);
   noStroke();
 
-  let buildings = new Group();
-  let trucks = new Group();
-  let tiles = new Group();
+  buildings = new Group();
+  cars = new Group();
+  blocks = new Group();
 
-  let cityBlocks = 3
-  // number of desired city blocks in a row
-  
-  let cells = (cityBlocks * 8) + ((cityBlocks-1) * 4)
-  // gives me number of cells or segments
+  let col = 0;
+  let row = 0;
 
-  let col = 0
-  let row = 0
+  let cityBlocksInCol = 3
 
+  let cityBlocksInRow = 4
+  // number of desired city blocks in a Col and Row
 
-  let cellWidth = canvWidth/8
-  let cellHeight = canvHeight/7
+  let horCells = (cityBlocksInCol * 8) + ((cityBlocksInCol-1) * 4)
+  let vertCells = (cityBlocksInRow * 4) + ((cityBlocksInRow-1) * 4)
+  // number of cells or segments on the X Axis and Y Axis
 
-  let horDistBtwBlocks = cellWidth * 3
-  let vertDistBtwBlocks = cellHeight * 2
+  let cellWidth = canvWidth/horCells
+  let cellHeight = canvHeight/vertCells
 
-  let blockWidth = cellWidth * 2
-  let blockHeight = cellHeight
+  let blockWidth = cellWidth * 8
+  let horDistBtwBlocks = cellWidth * 12
 
-  let carStartOptions = []
+  let blockHeight = cellHeight * 4
+  let vertDistBtwBlocks = cellHeight * 8
 
+  let carStartOptions = [
+    {x: cellWidth * 9, y: 0 + cellHeight},
+    {x: cellWidth * 21, y: 0 + cellHeight},
+    {x: cellWidth * 11, y: canvHeight - cellWidth},
+    {x: cellWidth * 23, y: canvHeight - cellWidth},
+    
+    {x: cellWidth * 23, y: canvHeight - cellWidth},
+  ];
 
-  for(let xCoord = blockWidth/2; xCoord <= canvWidth - blockWidth/2; xCoord += horDistBtwBlocks){
+  // let cellWidth = canvWidth/8
+  // let cellHeight = canvHeight/7
+  // let blockWidth = cellWidth * 2
+  // let blockHeight = cellHeight
+
+  for(let xCoord = cellWidth * 4; xCoord <= canvWidth - (cellWidth * 4); xCoord += horDistBtwBlocks){
     col++
-    for(let yCoord = blockHeight/2; yCoord <= (canvHeight - blockHeight/2)+1; yCoord += vertDistBtwBlocks){
+    for(let yCoord = cellHeight * 2; yCoord <= canvHeight - (cellHeight * 2) +1; yCoord += vertDistBtwBlocks){
       row++
 
-      let tile = createSprite(xCoord, yCoord, blockWidth, blockHeight)
-      tile.shapeColor = color(217,218,227)
-      tile.onMousePressed = ()=>{squareClicked(tile)}
-      tile.addToGroup(tiles)
-      tile.row = row;
-      tile.col = col;
+      let block = createSprite(xCoord, yCoord, blockWidth, blockHeight)
+      block.shapeColor = color(217,218,227)
+      block.onMousePressed = ()=>{squareClicked(block)}
+      block.addToGroup(blocks)
+      block.row = row;
+      block.col = col;
 
-      let startVertLineX = xCoord + horDistBtwBlocks/2
+      let startVertLineX = xCoord + cellWidth * 6
       let startVertLineY = 0
 
-      let endVertLineX = xCoord + horDistBtwBlocks/2
+      let endVertLineX = xCoord + cellWidth * 6
       let endVertLineY = canvHeight
-
-      let inc =
-
-      carStartOptions.push({x: })
 
       line(startVertLineX, startVertLineY, endVertLineX, endVertLineY)
       stroke(255)
@@ -74,9 +88,13 @@ function setup() {
       line(startHorLineX, startHorLineY, endHorLineX, endHorLineY)
       stroke(255)
 
-
-
     }
+  }
+
+  for(let i = 0; i < carStartOptions.length; i++){
+
+    let car = createSprite(carStartOptions[i].x, carStartOptions[i].y, cellWidth, cellHeight)
+    car.addToGroup(cars)
   }
   // let car = createSprite(startVertLineX+50, startVertLineY+50,50,50)
 
