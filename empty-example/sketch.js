@@ -11,12 +11,16 @@ let buildings;
 let cars;
 let blocks;
 
+let carStartOptions;
+
 let steps = 0;
+
+let lines = []
 
 
 function setup() {
   createCanvas(canvWidth, canvHeight);
-  background(32,29,29);
+
   noStroke();
 
   buildings = new Group();
@@ -44,19 +48,19 @@ function setup() {
   let blockHeight = cellHeight * 4
   let vertDistBtwBlocks = cellHeight * 8
 
-  let carStartOptions = [
-    {x: cellWidth * 9, y: 0 + cellHeight},
-    {x: cellWidth * 21, y: 0 + cellHeight},
-    {x: cellWidth * 11, y: canvHeight - cellWidth},
-    {x: cellWidth * 23, y: canvHeight - cellWidth},
-    
-    {x: cellWidth * 23, y: canvHeight - cellWidth},
+  carStartOptions = [
+    {x: cellWidth * 9, y: cellHeight, facing: "down"},
+    {x: cellWidth * 21, y: cellHeight, facing: "down"},
+    {x: cellWidth * 11, y: canvHeight - cellWidth, facing:"up"},
+    {x: cellWidth * 23, y: canvHeight - cellWidth, facing: "up"},
+    {x: cellWidth, y: cellHeight * 7, facing: "right"},
+    {x: cellWidth, y: cellHeight * 15, facing: "right"},
+    {x: cellWidth, y: cellHeight * 23, facing: "right"},
+    {x: canvWidth - cellWidth, y: cellHeight * 5, facing: "left"},
+    {x: canvWidth - cellWidth, y: cellHeight * 13, facing: "left"},
+    {x: canvWidth - cellWidth, y: cellHeight * 21, facing: "left"},
   ];
 
-  // let cellWidth = canvWidth/8
-  // let cellHeight = canvHeight/7
-  // let blockWidth = cellWidth * 2
-  // let blockHeight = cellHeight
 
   for(let xCoord = cellWidth * 4; xCoord <= canvWidth - (cellWidth * 4); xCoord += horDistBtwBlocks){
     col++
@@ -66,7 +70,8 @@ function setup() {
       let block = createSprite(xCoord, yCoord, blockWidth, blockHeight)
       block.shapeColor = color(217,218,227)
       block.onMousePressed = ()=>{squareClicked(block)}
-      block.addToGroup(blocks)
+      blocks.add(block)
+      // block.addToGroup(blocks)
       block.row = row;
       block.col = col;
 
@@ -76,8 +81,7 @@ function setup() {
       let endVertLineX = xCoord + cellWidth * 6
       let endVertLineY = canvHeight
 
-      line(startVertLineX, startVertLineY, endVertLineX, endVertLineY)
-      stroke(255)
+      lines.push({xStart: startVertLineX, yStart: startVertLineY, xEnd: endVertLineX, yEnd: endVertLineY})
 
       let startHorLineX = 0
       let startHorLineY = yCoord + vertDistBtwBlocks/2
@@ -85,57 +89,68 @@ function setup() {
       let endHorLineX = canvWidth
       let endHorLineY = yCoord + vertDistBtwBlocks/2
 
-      line(startHorLineX, startHorLineY, endHorLineX, endHorLineY)
-      stroke(255)
-
+      lines.push({xStart: startHorLineX, yStart: startHorLineY, xEnd: endHorLineX, yEnd: endHorLineY})
     }
   }
 
   for(let i = 0; i < carStartOptions.length; i++){
 
     let car = createSprite(carStartOptions[i].x, carStartOptions[i].y, cellWidth, cellHeight)
-    car.addToGroup(cars)
+    car.facing = carStartOptions[i].facing
+    cars.add(car)
   }
-  // let car = createSprite(startVertLineX+50, startVertLineY+50,50,50)
-
-  //
-  // var gridSize = 135;
-  // let row = 0;
-  // let col = 0;
-  //
-  //
-  //
-  // let tile = createSprite(150, 150, z, 100)
-  // console.log(tile)
-  //
-  // for (var x = gridSize; x <= 1500 - gridSize; x += gridSize) {
-  //   col++
-  //
-  //   for (var y = gridSize; y <= 1000 - gridSize; y += gridSize) {
-  //     row++
-  //
-  //     let xCoord = x-1
-  //     let yCoord = y-1
-  //
-  //     let tile = createSprite(xCoord, yCoord, 100, 60)
-  //
-  //     tile.shapeColor = color(217,218,227)
-  //     tile.onMousePressed = ()=>{squareClicked(tile)}
-  //     tile.addToGroup(tiles)
-  //     tile.row = row;
-  //     tile.col = col;
-  //   }
-  //   row = 0
-  // }
-  //
-  // start = tiles[91];
-  // end = tiles[25];
-  // current = start
-  // // current = tiles[25];
-  //
-  // start.shapeColor = color(66,134,244)
-  // end.shapeColor = color(244, 66, 66)
 }
+
+function draw() {
+  background(32,29,29);
+
+  for(let i = 0; i < lines.length; i++){
+    var newLine = lines[i]
+    line(newLine.xStart, newLine.yStart, newLine.xEnd, newLine.yEnd)
+    stroke(255)
+  }
+
+  for(let i = 0; i < cars.length; i++){
+    var car = cars[i]
+    car.collide(blocks);
+    car.displace(cars)
+
+    switch (car.facing) {
+      case "up":
+        car.setSpeed(1.5, 270)
+        break;
+      case "down":
+        car.setSpeed(1.5, 90)
+        break;
+      case "right":
+        car.setSpeed(1.5, 0)
+        break;
+      case "left":
+        car.setSpeed(1.5, 180)
+        break;
+      default:
+    }
+
+  }
+
+
+
+  drawSprites();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -145,8 +160,6 @@ function createObject(tile, direction){
   let gScore = steps
   let fScore = hScore + gScore
 
-  console.log(tile, "H: ", hScore, "G: ", gScore, "F: ", fScore)
-
   return {direction, tile, fScore, gScore, hScore}
 }
 
@@ -155,8 +168,6 @@ function createObject(tile, direction){
 
 function nextStep(){
   steps++
-  console.log("Next Step. Step #: ", steps)
-
   let up = tiles.find( (tile)=> ( tile.row == current.row - 1 && tile.col == current.col  ))
 
   let down = tiles.find( (tile)=> ( tile.row == current.row + 1 && tile.col == current.col ))
@@ -178,10 +189,10 @@ function nextStep(){
 
 
   closedList.push(current)
-  console.log("OPEN: ", openList)
+
 
   closedList.forEach( (tile) => {
-    console.log("Row: ", tile.row, "Col: ", tile.col)
+
   })
 
 
@@ -192,26 +203,6 @@ function nextStep(){
 
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-function draw() {
-  drawSprites()
-
-  // let rectangle = rect(700, 100, 100, 100)
-
-  // rectangle.shapeColor = color(66,137,244)
-}
 
 
 function squareClicked(clickedTile){
